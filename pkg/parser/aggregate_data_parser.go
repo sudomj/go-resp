@@ -7,17 +7,17 @@ import (
 	"github.com/x1bdev/go-resp/pkg/buffer"
 )
 
-type AggregateDataType struct {
+type AggregateDataParser struct {
 	buffer *buffer.Buffer
 }
 
-func NewAggregateDataParser(r io.Reader) *AggregateDataType {
-	return &AggregateDataType{
+func NewAggregateDataParser(r io.Reader) *AggregateDataParser {
+	return &AggregateDataParser{
 		buffer: buffer.New(r),
 	}
 }
 
-func (a *AggregateDataType) Read() (*Instruction, error) {
+func (a *AggregateDataParser) Read() (*Instruction, error) {
 
 	commandType, err := a.readByte()
 
@@ -56,8 +56,6 @@ func (a *AggregateDataType) Read() (*Instruction, error) {
 			return nil, err
 		}
 
-		slog.Info("reading byte", "data type", string(dataType))
-
 		length, err := a.getLength()
 
 		if err != nil {
@@ -88,12 +86,12 @@ func (a *AggregateDataType) Read() (*Instruction, error) {
 	return instruction, nil
 }
 
-func (a *AggregateDataType) readByte() (byte, error) {
+func (a *AggregateDataParser) readByte() (byte, error) {
 
 	return a.buffer.ReadByte()
 }
 
-func (a *AggregateDataType) getLength() (int, error) {
+func (a *AggregateDataParser) getLength() (int, error) {
 
 	length := 0
 	index := 0
@@ -118,19 +116,19 @@ func (a *AggregateDataType) getLength() (int, error) {
 	return length, nil
 }
 
-func (a *AggregateDataType) readLine() ([]byte, error) {
+func (a *AggregateDataParser) readLine() ([]byte, error) {
 	value, _, err := a.buffer.ReadLine()
 	return value, err
 }
 
-func (a *AggregateDataType) skipCRLF() {
+func (a *AggregateDataParser) skipCRLF() {
 
 	escape := make([]byte, 2)
 	a.buffer.Read(escape)
 }
 
 // Todo: Maybe store the types in a map or a global variables
-func (a *AggregateDataType) IsOfType(char byte) bool {
+func (a *AggregateDataParser) IsOfType(char byte) bool {
 
 	types := []byte{'$', '*', '!', '=', '%', '~', '>'}
 

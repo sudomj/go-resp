@@ -5,25 +5,8 @@ import (
 )
 
 type Tokenizer struct {
-	buf []byte
-	*bytes.Buffer
-	bufIdx          int
+	Type            byte
 	tokenCategories []DataParser
-}
-
-func NewTokenizer(r []byte) *Tokenizer {
-
-	reader := bytes.NewReader(r)
-	buffer := bytes.NewBuffer(r)
-	return &Tokenizer{
-		buf:    buffer.Bytes(),
-		Buffer: buffer,
-		bufIdx: 0,
-		tokenCategories: []DataParser{
-			NewSimpleDataParser(reader),
-			NewAggregateDataParser(reader),
-		},
-	}
 }
 
 type Instruction struct {
@@ -39,14 +22,27 @@ type Token struct {
 	Data   string `json:"data"`
 }
 
-func (t *Token) Validate() error {
-
-	return nil
-}
-
 type Command struct {
 	Keyword string   `json:"keyword"`
 	Args    []string `json:"args"`
+}
+
+func NewTokenizer(r []byte) *Tokenizer {
+
+	reader := bytes.NewReader(r)
+
+	return &Tokenizer{
+		Type: r[0],
+		tokenCategories: []DataParser{
+			NewSimpleDataParser(reader),
+			NewAggregateDataParser(reader),
+		},
+	}
+}
+
+func (t *Token) Validate() error {
+
+	return nil
 }
 
 func (c *Command) SetKeyword(keyword []byte) {
@@ -67,8 +63,7 @@ func (c *Command) PushArg(arg string) {
 
 func (t *Tokenizer) Tokenize() (*Instruction, error) {
 
-	char := t.buf[t.bufIdx]
-	dataTypeCategory := t.getDataTypeCategory(char)
+	dataTypeCategory := t.getDataTypeCategory(t.Type)
 	instruction, err := dataTypeCategory.Read()
 
 	if err != nil {
