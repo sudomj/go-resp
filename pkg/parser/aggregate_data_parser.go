@@ -40,12 +40,11 @@ func (a *AggregateDataParser) Read() (*Instruction, error) {
 
 	a.skipCRLF()
 
-	command := &Command{Args: make([]string, 0)}
 	instruction := &Instruction{
 		Type:    string(commandType),
 		Data:    string(numberOfElements),
 		Tokens:  []Token{},
-		Command: command,
+		Command: NewCommand(),
 	}
 
 	for {
@@ -91,8 +90,8 @@ func (a *AggregateDataParser) Read() (*Instruction, error) {
 			Data:   string(line),
 		}
 
-		command.SetKeyword(line)
-		command.PushArg(string(line))
+		instruction.Command.SetKeyword(line)
+		instruction.Command.PushArg(string(line))
 		instruction.Tokens = append(instruction.Tokens, token)
 	}
 

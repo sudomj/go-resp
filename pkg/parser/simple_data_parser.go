@@ -26,10 +26,9 @@ func (s *SimpleDataParser) Read() (*Instruction, error) {
 		return nil, err
 	}
 
-	command := &Command{}
 	instruction := &Instruction{
 		Type:    string(commandType),
-		Command: command,
+		Command: NewCommand(),
 	}
 
 	line, err := s.readLine()
@@ -45,7 +44,7 @@ func (s *SimpleDataParser) Read() (*Instruction, error) {
 		Data:   string(line),
 	}
 	instruction.Tokens = append(instruction.Tokens, token)
-	command.PushArg(string(line))
+	instruction.Command.PushArg(string(line))
 
 	return instruction, nil
 }

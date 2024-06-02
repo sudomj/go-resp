@@ -40,6 +40,11 @@ func NewTokenizer(r []byte) *Tokenizer {
 	}
 }
 
+func NewCommand() *Command {
+
+	return &Command{Args: make([]string, 0)}
+}
+
 func (t *Token) Validate() error {
 
 	return nil
