@@ -7,6 +7,11 @@ import (
 	"github.com/x1bdev/go-resp/pkg/buffer"
 )
 
+const (
+	NUMBER_OF_BYTES_CR = 1
+	NUMBER_OF_BYTES_LF = 1
+)
+
 type AggregateDataParser struct {
 	buffer *buffer.Buffer
 }
@@ -59,15 +64,23 @@ func (a *AggregateDataParser) Read() (*Instruction, error) {
 		length, err := a.getLength()
 
 		if err != nil {
+
+			if err == io.EOF {
+				break
+			}
+
 			slog.Error("could not read the byte", "err", err)
 			return nil, err
 		}
 
-		a.readByte()
-
 		line, err := a.readLine()
 
 		if err != nil {
+
+			if err == io.EOF {
+				break
+			}
+
 			slog.Error("could not read the line", "err", err)
 			return nil, err
 		}
@@ -79,8 +92,8 @@ func (a *AggregateDataParser) Read() (*Instruction, error) {
 		}
 
 		command.SetKeyword(line)
-		instruction.Tokens = append(instruction.Tokens, token)
 		command.PushArg(string(line))
+		instruction.Tokens = append(instruction.Tokens, token)
 	}
 
 	return instruction, nil
@@ -113,6 +126,8 @@ func (a *AggregateDataParser) getLength() (int, error) {
 		index += 1
 	}
 
+	a.skipLF()
+
 	return length, nil
 }
 
@@ -122,9 +137,18 @@ func (a *AggregateDataParser) readLine() ([]byte, error) {
 }
 
 func (a *AggregateDataParser) skipCRLF() {
+	a.skipCR()
+	a.skipLF()
+}
 
-	escape := make([]byte, 2)
-	a.buffer.Read(escape)
+func (a *AggregateDataParser) skipCR() {
+	buf := make([]byte, NUMBER_OF_BYTES_CR)
+	a.buffer.Read(buf)
+}
+
+func (a *AggregateDataParser) skipLF() {
+	buf := make([]byte, NUMBER_OF_BYTES_LF)
+	a.buffer.Read(buf)
 }
 
 // Todo: Maybe store the types in a map or a global variables
