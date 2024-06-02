@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/x1bdev/go-resp/pkg/buffer"
+	"github.com/x1bdev/go-resp/pkg/types"
 )
 
 const (
@@ -22,7 +23,7 @@ func NewAggregateDataParser(r io.Reader) *AggregateDataParser {
 	}
 }
 
-func (a *AggregateDataParser) Read() (*Instruction, error) {
+func (a *AggregateDataParser) Read() (*types.Instruction, error) {
 
 	commandType, err := a.readByte()
 
@@ -40,12 +41,7 @@ func (a *AggregateDataParser) Read() (*Instruction, error) {
 
 	a.skipCRLF()
 
-	instruction := &Instruction{
-		Type:    string(commandType),
-		Data:    string(numberOfElements),
-		Tokens:  []Token{},
-		Command: NewCommand(),
-	}
+	instruction := types.NewInstruction(commandType, numberOfElements)
 
 	for {
 
@@ -84,12 +80,7 @@ func (a *AggregateDataParser) Read() (*Instruction, error) {
 			return nil, err
 		}
 
-		token := Token{
-			Type:   string(dataType),
-			Length: length,
-			Data:   string(line),
-		}
-
+		token := types.NewToken(dataType, length, line)
 		instruction.Command.SetKeyword(line)
 		instruction.Command.PushArg(string(line))
 		instruction.Tokens = append(instruction.Tokens, token)
@@ -143,6 +134,7 @@ func (a *AggregateDataParser) skipCRLF() {
 func (a *AggregateDataParser) skipCR() {
 	buf := make([]byte, NUMBER_OF_BYTES_CR)
 	a.buffer.Read(buf)
+
 }
 
 func (a *AggregateDataParser) skipLF() {
