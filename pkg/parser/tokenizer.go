@@ -8,7 +8,7 @@ type Tokenizer struct {
 	buf []byte
 	*bytes.Buffer
 	bufIdx          int
-	tokenCategories []DataTypeCategory
+	tokenCategories []DataParser
 }
 
 func NewTokenizer(r []byte) *Tokenizer {
@@ -19,9 +19,9 @@ func NewTokenizer(r []byte) *Tokenizer {
 		buf:    buffer.Bytes(),
 		Buffer: buffer,
 		bufIdx: 0,
-		tokenCategories: []DataTypeCategory{
-			NewSimpleToken(reader),
-			NewAggregateToken(reader),
+		tokenCategories: []DataParser{
+			NewSimpleDataParser(reader),
+			NewAggregateDataParser(reader),
 		},
 	}
 }
@@ -78,7 +78,7 @@ func (t *Tokenizer) Tokenize() (*Instruction, error) {
 	return instruction, nil
 }
 
-func (t *Tokenizer) getDataTypeCategory(char byte) DataTypeCategory {
+func (t *Tokenizer) getDataTypeCategory(char byte) DataParser {
 
 	for _, c := range t.tokenCategories {
 

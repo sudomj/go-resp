@@ -10,7 +10,7 @@ type SimpleDataType struct {
 	buffer *buffer.Buffer
 }
 
-func NewSimpleToken(r io.Reader) *SimpleDataType {
+func NewSimpleDataParser(r io.Reader) *SimpleDataType {
 	return &SimpleDataType{
 		buffer: buffer.New(r),
 	}

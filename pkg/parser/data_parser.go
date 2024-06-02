@@ -1,6 +1,6 @@
 package parser
 
-type DataTypeCategory interface {
+type DataParser interface {
 	IsOfType(char byte) bool
 	Read() (*Instruction, error)
 }

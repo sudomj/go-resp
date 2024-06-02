@@ -11,7 +11,7 @@ type AggregateDataType struct {
 	buffer *buffer.Buffer
 }
 
-func NewAggregateToken(r io.Reader) *AggregateDataType {
+func NewAggregateDataParser(r io.Reader) *AggregateDataType {
 	return &AggregateDataType{
 		buffer: buffer.New(r),
 	}
