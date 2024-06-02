@@ -2,29 +2,13 @@ package parser
 
 import (
 	"bytes"
+
+	"github.com/x1bdev/go-resp/pkg/types"
 )
 
 type Tokenizer struct {
 	Type            byte
 	tokenCategories []DataParser
-}
-
-type Instruction struct {
-	Type    string   `json:"type"`
-	Data    string   `json:"data"`
-	Tokens  []Token  `json:"tokens"`
-	Command *Command `json:"command"`
-}
-
-type Token struct {
-	Type   string `json:"type"`
-	Length int    `json:"length"`
-	Data   string `json:"data"`
-}
-
-type Command struct {
-	Keyword string   `json:"keyword"`
-	Args    []string `json:"args"`
 }
 
 func NewTokenizer(r []byte) *Tokenizer {
@@ -40,33 +24,7 @@ func NewTokenizer(r []byte) *Tokenizer {
 	}
 }
 
-func NewCommand() *Command {
-
-	return &Command{Args: make([]string, 0)}
-}
-
-func (t *Token) Validate() error {
-
-	return nil
-}
-
-func (c *Command) SetKeyword(keyword []byte) {
-
-	if c.Keyword == "" {
-		c.Keyword = string(keyword)
-	}
-}
-
-func (c *Command) PushArg(arg string) {
-
-	if arg == c.Keyword {
-		return
-	}
-
-	c.Args = append(c.Args, arg)
-}
-
-func (t *Tokenizer) Tokenize() (*Instruction, error) {
+func (t *Tokenizer) Tokenize() (*types.Instruction, error) {
 
 	dataTypeCategory := t.getDataTypeCategory(t.Type)
 	instruction, err := dataTypeCategory.Read()

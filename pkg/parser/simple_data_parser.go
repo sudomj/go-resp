@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/x1bdev/go-resp/pkg/buffer"
+	"github.com/x1bdev/go-resp/pkg/types"
 )
 
 type SimpleDataParser struct {
@@ -17,7 +18,7 @@ func NewSimpleDataParser(r io.Reader) *SimpleDataParser {
 	}
 }
 
-func (s *SimpleDataParser) Read() (*Instruction, error) {
+func (s *SimpleDataParser) Read() (*types.Instruction, error) {
 
 	commandType, err := s.readByte()
 
@@ -26,11 +27,7 @@ func (s *SimpleDataParser) Read() (*Instruction, error) {
 		return nil, err
 	}
 
-	instruction := &Instruction{
-		Type:    string(commandType),
-		Command: NewCommand(),
-	}
-
+	instruction := types.NewInstruction(commandType, '0')
 	line, err := s.readLine()
 
 	if err != nil {
@@ -38,11 +35,7 @@ func (s *SimpleDataParser) Read() (*Instruction, error) {
 		return nil, err
 	}
 
-	token := Token{
-		Type:   string(commandType),
-		Length: len(line),
-		Data:   string(line),
-	}
+	token := types.NewToken(commandType, len(line), line)
 	instruction.Tokens = append(instruction.Tokens, token)
 	instruction.Command.PushArg(string(line))
 
